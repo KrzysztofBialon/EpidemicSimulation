@@ -12,9 +12,9 @@ import reactor.core.publisher.Flux;
 @RequestMapping("")
 public class mainController
 {
-    @PostMapping("/simulation")
+   /* @PostMapping("/simulation")
     public Flux<SimulationDay> setSimulation(@RequestBody SimulationSetUp simulationSetUp)
     {
 
-    }
+    }*/
 }
