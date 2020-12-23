@@ -6,6 +6,7 @@ import com.app.epidemicsimulation.model.SimulationSetUp;
 import com.app.epidemicsimulation.service.SimulationRecordService;
 import com.app.epidemicsimulation.service.SimulationSetUpService;
 import com.app.epidemicsimulation.util.Simulation;
+import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -33,6 +34,11 @@ public class mainController
         this.recordService = recordService;
     }
 
+    @PostMapping("/simulation")
+    public void createSimulation(@RequestBody JSONObject setUp)
+    {
+
+    }
     @GetMapping("/")
     public void test()
     {
@@ -50,6 +56,5 @@ public class mainController
 
         setUpService.save(setUp);
         recordService.save(new SimulationRecord(setUp.getSimulationRecordReference(), list));
-
     }
 }
