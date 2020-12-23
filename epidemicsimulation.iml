@@ -13,6 +13,13 @@
         </sourceRoots>
       </configuration>
     </facet>
+    <facet type="jpa" name="JPA">
+      <configuration>
+        <setting name="validation-enabled" value="true" />
+        <datasource-mapping />
+        <naming-strategy-map />
+      </configuration>
+    </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_11">
     <output url="file://$MODULE_DIR$/target/classes" />
@@ -33,13 +40,9 @@
     <orderEntry type="library" name="Maven: org.apache.tomcat.embed:tomcat-embed-websocket:9.0.41" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-webmvc:5.3.2" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-aop:5.3.2" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework:spring-context:5.3.2" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework:spring-expression:5.3.2" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.data:spring-data-rest-webmvc:3.4.2" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.data:spring-data-rest-core:3.4.2" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework:spring-tx:5.3.2" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.hateoas:spring-hateoas:1.2.2" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework.data:spring-data-commons:2.4.2" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.plugin:spring-plugin-core:2.0.0.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.atteo:evo-inflector:1.2.2" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.11.3" level="project" />
@@ -116,5 +119,15 @@
     <orderEntry type="library" scope="TEST" name="Maven: io.projectreactor:reactor-test:3.4.1" level="project" />
     <orderEntry type="library" name="Maven: io.projectreactor:reactor-core:3.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.reactivestreams:reactive-streams:1.0.3" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-data-mongodb-reactive:2.4.1" level="project" />
+    <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver-reactivestreams:4.1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.mongodb:bson:4.1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver-core:4.1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.data:spring-data-mongodb:3.1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-tx:5.3.2" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-context:5.3.2" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-expression:5.3.2" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.data:spring-data-commons:2.4.2" level="project" />
+    <orderEntry type="library" name="Maven: javax.persistence:javax.persistence-api:2.2" level="project" />
   </component>
 </module>
