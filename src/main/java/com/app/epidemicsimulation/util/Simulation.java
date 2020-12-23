@@ -34,16 +34,43 @@ public class Simulation implements ISimulationCalculations
         int infectedTiMinusOneDaysAgo = list.size() - ti-2 < 0 ? 0 : list.get(list.size() - ti-2).getPi();
         int infectedTiDaysAgo = list.size()-1 - ti < 0 ? 0 : list.get(list.size()-1 - ti).getPi();
         int diffTm = infectedTmDaysAgo - infectedTmMinusOneDaysAgo;
+        if(diffTm < 0)
+            diffTm *= 2;
         int diffTi = infectedTiDaysAgo - infectedTiMinusOneDaysAgo;
+        if(diffTi < 0)
+            diffTi *= 2;
         int differentialTm = abs(diffTm);//diffTm <= 0 ? 0 : diffTm;
-        int differentialTi = diffTi <= 0 ? 0 : diffTi;
+        int differentialTi = abs(diffTi);//diffTi <= 0 ? 0 : diffTi;
         int totalDead = (int) (differentialTm * setUp.getM()) + prevDead;
         int totalResistant = ((int) (differentialTi * setUp.getM()) + prevResistant);
-        infected = newInfected + prevInfected >= setUp.getP() ? setUp.getP() : prevInfected + newInfected;
-        vulnerable = vulnerable - newInfected <=0 ? 0 : vulnerable - newInfected;
-        dead = totalDead >= setUp.getP() ? setUp.getP() : totalDead;
-        resistant = totalResistant >= setUp.getP() ? setUp.getP() : totalResistant;
-        infected = infected-(dead + resistant) <= 0 ? 0 : infected-(dead + resistant);
+        if(prevDead + prevResistant >= setUp.getP())
+        {
+            dead = prevDead;
+            resistant = prevResistant;
+        } else
+        {
+            if(totalDead + totalResistant >= setUp.getP())
+                totalResistant -= (totalDead + totalResistant) % setUp.getP();
+            if(ti < tm)
+            {
+                resistant += (prevResistant + differentialTi);
+                if(resistant >= setUp.getP())
+                    resistant = setUp.getP();
+                vulnerable -= newInfected;
+                if(vulnerable <= 0)
+                    vulnerable = 0;
+                infected = newInfected + prevInfected - differentialTi;
+                if(infected >= setUp.getP())
+                    infected = setUp.getP() - resistant;
+            } else
+            {
+                infected = newInfected + prevInfected >= setUp.getP() ? setUp.getP() : prevInfected + newInfected;
+                vulnerable = vulnerable - newInfected <= 0 ? 0 : vulnerable - newInfected;
+                dead = totalDead >= setUp.getP() ? setUp.getP() : totalDead;
+                resistant = totalResistant >= setUp.getP() ? setUp.getP() : totalResistant;
+                infected = infected - (dead + resistant) <= 0 ? 0 : infected - (dead + resistant);
+            }
+        }
 
         return new SimulationDay(infected, vulnerable, dead, resistant);
     }

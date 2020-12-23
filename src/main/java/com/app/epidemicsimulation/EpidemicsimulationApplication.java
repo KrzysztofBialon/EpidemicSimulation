@@ -16,7 +16,7 @@ public class EpidemicSimulationApplication
 	public static void main(String[] args) {
 		SpringApplication.run(EpidemicSimulationApplication.class, args);
 		List<SimulationDay> list = new ArrayList<>();
-		SimulationSetUp setUp = new SimulationSetUp("test", 100, 10, 2, 0.5, 3, 2, 50);
+		SimulationSetUp setUp = new SimulationSetUp("test", 100, 10, 2, 0.5, 2, 1, 50);
 		SimulationDay firstDay = new SimulationDay(setUp.getI(), setUp.getP()- setUp.getI(), 0, 0);
 		list.add(firstDay);
 		System.out.println("afdgfs" + list.get(0).toString());
