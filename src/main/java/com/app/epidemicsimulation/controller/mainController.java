@@ -13,12 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("")
+@RequestMapping("/simulation")
 public class mainController
 {
     private final SimulationSetUpService setUpService;
@@ -35,43 +36,49 @@ public class mainController
         this.objectMapper = objectMapper;
     }
 
-    @PostMapping(value = "/simulation", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    @PostMapping(value = "/generate", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<SimulationDay> createSimulation(@RequestBody JSONObject setUpBody) throws JsonProcessingException
     {
         List<SimulationDay> list = new ArrayList<>();
         SimulationSetUp setUp = objectMapper.readValue(setUpBody.toJSONString(), SimulationSetUp.class);
         SimulationDay firstDay = new SimulationDay(setUp.getI(), setUp.getP()- setUp.getI(), 0, 0);
-        list.add(firstDay);
         Simulation simulation = new Simulation(setUp);
+
+        list.add(firstDay);
 
         for(int i = 0; i< setUp.getTs(); i++)
         {
             list.add(simulation.calculate(setUp.getTm(), setUp.getTi(), list));
         }
+
         setUpService.save(setUp);
 
         SimulationRecord simulationRecord = new SimulationRecord(setUp.getSimulationRecordReference(), list);
+
         recordService.save(simulationRecord);
 
         return recordService.getSimulation(simulationRecord.getId());
     }
 
-    @GetMapping("/")
-    public void test()
+    @GetMapping(value = "/search/record/all", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    public Flux<SimulationRecord> getAllSimulationRecord()
     {
-        List<SimulationDay> list = new ArrayList<>();
-        SimulationSetUp setUp = new SimulationSetUp("test", 100, 10, 2, 0.5, 2, 1, 50);
-
-        SimulationDay firstDay = new SimulationDay(setUp.getI(), setUp.getP()- setUp.getI(), 0, 0);
-        list.add(firstDay);
-        Simulation simulation = new Simulation(setUp);
-
-        for(int i = 0; i< setUp.getTs(); i++)
-        {
-            list.add(simulation.calculate(setUp.getTm(), setUp.getTi(), list));
-        }
-
-        setUpService.save(setUp);
-        recordService.save(new SimulationRecord(setUp.getSimulationRecordReference(), list));
+        return recordService.getAllSimulation();
     }
+    @GetMapping(value = "/search/record", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    public Flux<SimulationDay> getSimulationRecord(@RequestParam(value="id") String id)//TODO czy zostawic id jako reference czy osobno id do warstwy dostepu a osobno do refa
+    {
+        return recordService.getSimulation(id);
+    }//TODO czy ustawic id przed save i jedno dl aobu kolekcji czy w trakcie
+    @GetMapping(value = "/search/set_up", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    public Flux<SimulationSetUp> getSimulationSetUpByName(@RequestParam(value="name") String name)
+    {
+        return setUpService.findByName(name);
+    }//TODO endpoint do sortowania po parametrach
+    @GetMapping("search/set_up/{ref_id}")
+    public Mono<SimulationSetUp> getSimulationSetUpByReferenceId(@PathVariable String ref_id)
+    {
+        return setUpService.findByReferenceId(ref_id);
+    }
+
 }

@@ -5,6 +5,7 @@ import com.app.epidemicsimulation.repository.SimulationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 public class SimulationSetUpService
@@ -17,11 +18,6 @@ public class SimulationSetUpService
         this.repository = repository;
     }
 
-    public Flux<SimulationSetUp> getAll()
-    {
-        return repository.findAll();
-    }
-
     public void save(SimulationSetUp setUp)
     {
         repository.insert(setUp).subscribe();
@@ -30,4 +26,13 @@ public class SimulationSetUpService
     {
         return repository.findAll();
     }
+    public Flux<SimulationSetUp> findByName(String name)
+    {
+        return repository.findAllByN(name);
+    }
+    public Mono<SimulationSetUp> findByReferenceId(String id)
+    {
+        return repository.findBySimulationRecordReference(id);
+    }
+
 }

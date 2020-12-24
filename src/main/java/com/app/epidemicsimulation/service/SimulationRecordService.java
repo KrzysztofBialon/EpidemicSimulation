@@ -26,6 +26,11 @@ public class SimulationRecordService
     {
         recordRepository.insert(simulationRecord).subscribe();
     }
+
+    public Flux<SimulationRecord> getAllSimulation()
+    {
+        return recordRepository.findAll();
+    }
     public Flux<SimulationDay> getSimulation(String id)
     {
         return
