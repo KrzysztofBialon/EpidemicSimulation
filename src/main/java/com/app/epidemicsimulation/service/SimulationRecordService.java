@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Service
 public class SimulationRecordService
@@ -31,8 +30,8 @@ public class SimulationRecordService
     {
         return
                 recordRepository.
-                        findById(id).
-                        map(x->
+                        findById(id)
+                        .map(x->
                                 x.getRecords().stream())
                         .flatMapMany((Flux::fromStream));
     }

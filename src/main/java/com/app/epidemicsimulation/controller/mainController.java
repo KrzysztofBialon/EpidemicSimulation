@@ -10,9 +10,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +21,6 @@ import java.util.List;
 @RequestMapping("")
 public class mainController
 {
-   /* @PostMapping("/simulation")
-    public Flux<SimulationDay> setSimulation(@RequestBody SimulationSetUp simulationSetUp)
-    {
-
-    }*/
     private final SimulationSetUpService setUpService;
     private final SimulationRecordService recordService;
     private final ObjectMapper objectMapper;
@@ -40,7 +35,7 @@ public class mainController
         this.objectMapper = objectMapper;
     }
 
-    @PostMapping("/simulation")
+    @PostMapping(value = "/simulation", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<SimulationDay> createSimulation(@RequestBody JSONObject setUpBody) throws JsonProcessingException
     {
         List<SimulationDay> list = new ArrayList<>();
@@ -60,6 +55,7 @@ public class mainController
 
         return recordService.getSimulation(simulationRecord.getId());
     }
+
     @GetMapping("/")
     public void test()
     {

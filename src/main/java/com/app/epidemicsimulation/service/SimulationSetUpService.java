@@ -26,4 +26,8 @@ public class SimulationSetUpService
     {
         repository.insert(setUp).subscribe();
     }
+    public Flux<SimulationSetUp> findAll()
+    {
+        return repository.findAll();
+    }
 }
