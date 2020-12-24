@@ -6,10 +6,13 @@ import com.app.epidemicsimulation.model.SimulationSetUp;
 import com.app.epidemicsimulation.service.SimulationRecordService;
 import com.app.epidemicsimulation.service.SimulationSetUpService;
 import com.app.epidemicsimulation.util.Simulation;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,21 +26,39 @@ public class mainController
     {
 
     }*/
-    private SimulationSetUpService setUpService;
-    private SimulationRecordService recordService;
+    private final SimulationSetUpService setUpService;
+    private final SimulationRecordService recordService;
+    private final ObjectMapper objectMapper;
 
     @Autowired
     public mainController(SimulationSetUpService setUpService,
-                          SimulationRecordService recordService)
+                          SimulationRecordService recordService,
+                          ObjectMapper objectMapper)
     {
         this.setUpService = setUpService;
         this.recordService = recordService;
+        this.objectMapper = objectMapper;
     }
 
     @PostMapping("/simulation")
-    public void createSimulation(@RequestBody JSONObject setUp)
+    public Flux<SimulationDay> createSimulation(@RequestBody JSONObject setUpBody) throws JsonProcessingException
     {
+        List<SimulationDay> list = new ArrayList<>();
+        SimulationSetUp setUp = objectMapper.readValue(setUpBody.toJSONString(), SimulationSetUp.class);
+        SimulationDay firstDay = new SimulationDay(setUp.getI(), setUp.getP()- setUp.getI(), 0, 0);
+        list.add(firstDay);
+        Simulation simulation = new Simulation(setUp);
 
+        for(int i = 0; i< setUp.getTs(); i++)
+        {
+            list.add(simulation.calculate(setUp.getTm(), setUp.getTi(), list));
+        }
+        setUpService.save(setUp);
+
+        SimulationRecord simulationRecord = new SimulationRecord(setUp.getSimulationRecordReference(), list);
+        recordService.save(simulationRecord);
+
+        return recordService.getSimulation(simulationRecord.getId());
     }
     @GetMapping("/")
     public void test()

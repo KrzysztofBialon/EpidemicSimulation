@@ -2,9 +2,9 @@ package com.app.epidemicsimulation.repository;
 
 import com.app.epidemicsimulation.model.SimulationSetUp;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.stereotype.Repository;
 
-@RepositoryRestResource
+@Repository
 public interface SimulationRepository extends ReactiveMongoRepository<SimulationSetUp, String>
 {
 }
