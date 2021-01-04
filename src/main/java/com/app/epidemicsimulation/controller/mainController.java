@@ -6,11 +6,9 @@ import com.app.epidemicsimulation.model.SimulationSetUp;
 import com.app.epidemicsimulation.service.SimulationRecordService;
 import com.app.epidemicsimulation.service.SimulationSetUpService;
 import com.app.epidemicsimulation.util.Simulation;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +16,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/simulation")
@@ -41,25 +37,15 @@ public class mainController
     //Generates simulation on given conditions from JSON object passed in body
     @PostMapping(value = "/generate", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<SimulationDay> createSimulation(
-            @Valid @RequestBody SimulationSetUp setUpBody) throws JsonProcessingException
+            @Valid @RequestBody SimulationSetUp setUpBody)
     {
-        List<SimulationDay> list = new ArrayList<>();
         SimulationSetUp setUp = setUpBody;
         setUp.setId(new ObjectId().toHexString());
-        SimulationDay firstDay = new SimulationDay(setUp.getI(), setUp.getP()- setUp.getI(), 0, 0);
         Simulation simulation = new Simulation(setUp);
-
-        list.add(firstDay);
-
-        for(int i = 0; i< setUp.getTs(); i++)
-        {
-            list.add(simulation.calculate(setUp.getTm(), setUp.getTi(), list));
-        }
+        simulation.calculate();
 
         setUpService.save(setUp);
-
-        SimulationRecord simulationRecord = new SimulationRecord(setUp.getId(), list);
-
+        SimulationRecord simulationRecord = new SimulationRecord(setUp.getId(), simulation.getList());
         recordService.save(simulationRecord);
 
         return recordService.getSimulation(simulationRecord.getOwnerId());
@@ -100,7 +86,6 @@ public class mainController
         return recordService.getSimulation(id);
     }
     @DeleteMapping(value = "/simulationSetUps/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<ResponseEntity> deleteSimulation(@PathVariable(value = "id") String id)
     {
         return recordService.deleteByOwnerId(id)
