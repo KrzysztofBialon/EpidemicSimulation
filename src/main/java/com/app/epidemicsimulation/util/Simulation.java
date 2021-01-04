@@ -2,9 +2,7 @@ package com.app.epidemicsimulation.util;
 
 import com.app.epidemicsimulation.model.SimulationDay;
 import com.app.epidemicsimulation.model.SimulationSetUp;
-
 import java.util.List;
-
 import static java.lang.StrictMath.abs;
 
 
@@ -14,7 +12,7 @@ public class Simulation implements ISimulationCalculations
     private int vulnerable;
     private int dead;
     private int resistant;
-    private SimulationSetUp setUp; //TODO fix to keep population in memeory
+    private SimulationSetUp setUp;
 
     public Simulation(SimulationSetUp setUp)
     {

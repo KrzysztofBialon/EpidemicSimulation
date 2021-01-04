@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class mainController
         this.recordService = recordService;
         this.objectMapper = objectMapper;
     }
-
+    //Generates simulation on given conditions from JSON object passed in body
     @PostMapping(value = "/generate", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<SimulationDay> createSimulation(@RequestBody JSONObject setUpBody) throws JsonProcessingException
     {
@@ -53,32 +52,46 @@ public class mainController
 
         setUpService.save(setUp);
 
-        SimulationRecord simulationRecord = new SimulationRecord(setUp.getSimulationRecordReference(), list);
+        SimulationRecord simulationRecord = new SimulationRecord(setUp.getId(), list);
 
         recordService.save(simulationRecord);
 
-        return recordService.getSimulation(simulationRecord.getId());
+        return recordService.getSimulation(simulationRecord.getOwnerId().toHexString());
     }
 
+    @GetMapping(value = "/search/set_ups/all", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    public Flux<SimulationSetUp> getSimulationSetUpByName()
+    {
+        return setUpService.findAll();
+    }
+    @GetMapping(value = "/search/set_ups/{name}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    public Flux<SimulationSetUp> getSimulationSetUpByName(@PathVariable(value="name") String name)
+    {
+        return setUpService.findByName(name);
+    }
+    @GetMapping("search/set_ups/{id}")
+    public Mono<SimulationSetUp> getSimulationSetUpById(@PathVariable(value="id") String id)
+    {
+        return setUpService.findByReferenceId(id);
+    }
+
+    @GetMapping("/search/set_ups/sort/{sort}")
+    public Flux<SimulationSetUp> getSimulationSetUpBy(@PathVariable(value = "sort") String sort,
+                                                      @RequestParam(value = "from") double from,
+                                                      @RequestParam(value = "to") double to)
+    {
+        return setUpService.sort(sort, from, to);
+    }
     @GetMapping(value = "/search/record/all", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<SimulationRecord> getAllSimulationRecord()
     {
         return recordService.getAllSimulation();
     }
-    @GetMapping(value = "/search/record", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-    public Flux<SimulationDay> getSimulationRecord(@RequestParam(value="id") String id)//TODO czy zostawic id jako reference czy osobno id do warstwy dostepu a osobno do refa
+
+    @GetMapping(value = "/search/record/{id}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    public Flux<SimulationDay> getSimulationRecord(@PathVariable(value="id") String id)
     {
         return recordService.getSimulation(id);
-    }//TODO czy ustawic id przed save i jedno dl aobu kolekcji czy w trakcie
-    @GetMapping(value = "/search/set_up", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-    public Flux<SimulationSetUp> getSimulationSetUpByName(@RequestParam(value="name") String name)
-    {
-        return setUpService.findByName(name);
-    }//TODO endpoint do sortowania po parametrach
-    @GetMapping("search/set_up/{ref_id}")
-    public Mono<SimulationSetUp> getSimulationSetUpByReferenceId(@PathVariable String ref_id)
-    {
-        return setUpService.findByReferenceId(ref_id);
     }
 
 }

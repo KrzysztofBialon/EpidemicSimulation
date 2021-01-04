@@ -36,8 +36,8 @@ public class SimulationRecordService
         return
                 recordRepository.
                         findById(id)
-                        .map(x->
-                                x.getRecords().stream())
+                        .map(record->
+                                record.getRecords().stream())
                         .flatMapMany((Flux::fromStream));
     }
 }

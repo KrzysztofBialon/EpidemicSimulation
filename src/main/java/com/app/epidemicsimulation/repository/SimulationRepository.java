@@ -10,5 +10,5 @@ import reactor.core.publisher.Mono;
 public interface SimulationRepository extends ReactiveMongoRepository<SimulationSetUp, String>
 {
     Flux<SimulationSetUp> findAllByN(String name);
-    Mono<SimulationSetUp> findBySimulationRecordReference(String id);
+    Mono<SimulationSetUp> findById(String id);
 }
