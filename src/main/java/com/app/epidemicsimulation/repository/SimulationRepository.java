@@ -11,4 +11,5 @@ public interface SimulationRepository extends ReactiveMongoRepository<Simulation
 {
     Flux<SimulationSetUp> findAllByN(String name);
     Mono<SimulationSetUp> findById(String id);
+    Mono<Void> deleteById(String id);
 }

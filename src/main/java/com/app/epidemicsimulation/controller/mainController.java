@@ -8,12 +8,16 @@ import com.app.epidemicsimulation.service.SimulationSetUpService;
 import com.app.epidemicsimulation.util.Simulation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.minidev.json.JSONObject;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,10 +40,12 @@ public class mainController
     }
     //Generates simulation on given conditions from JSON object passed in body
     @PostMapping(value = "/generate", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-    public Flux<SimulationDay> createSimulation(@RequestBody JSONObject setUpBody) throws JsonProcessingException
+    public Flux<SimulationDay> createSimulation(
+            @Valid @RequestBody SimulationSetUp setUpBody) throws JsonProcessingException
     {
         List<SimulationDay> list = new ArrayList<>();
-        SimulationSetUp setUp = objectMapper.readValue(setUpBody.toJSONString(), SimulationSetUp.class);
+        SimulationSetUp setUp = setUpBody;
+        setUp.setId(new ObjectId().toHexString());
         SimulationDay firstDay = new SimulationDay(setUp.getI(), setUp.getP()- setUp.getI(), 0, 0);
         Simulation simulation = new Simulation(setUp);
 
@@ -56,7 +62,7 @@ public class mainController
 
         recordService.save(simulationRecord);
 
-        return recordService.getSimulation(simulationRecord.getOwnerId().toHexString());
+        return recordService.getSimulation(simulationRecord.getOwnerId());
     }
 
     @GetMapping(value = "/search/set_ups/all", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
@@ -75,13 +81,13 @@ public class mainController
         return setUpService.findByReferenceId(id);
     }
 
-    @GetMapping("/search/set_ups/sort/{sort}")
+    /*@GetMapping("/search/set_ups/sort/{sort}")
     public Flux<SimulationSetUp> getSimulationSetUpBy(@PathVariable(value = "sort") String sort,
                                                       @RequestParam(value = "from") double from,
                                                       @RequestParam(value = "to") double to)
     {
         return setUpService.sort(sort, from, to);
-    }
+    }*/
     @GetMapping(value = "/search/record/all", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<SimulationRecord> getAllSimulationRecord()
     {
@@ -93,5 +99,13 @@ public class mainController
     {
         return recordService.getSimulation(id);
     }
+    @DeleteMapping(value = "/simulationSetUps/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<ResponseEntity> deleteSimulation(@PathVariable(value = "id") String id)
+    {
+        return recordService.deleteByOwnerId(id)
+                .then(setUpService.deleteById(id))
+                .then(Mono.just(ResponseEntity.noContent().build()));
 
+    }
 }

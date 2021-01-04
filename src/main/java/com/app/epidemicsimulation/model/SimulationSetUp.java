@@ -9,6 +9,9 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 @NoArgsConstructor
 @Getter
 @Setter
@@ -17,27 +20,36 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class SimulationSetUp
 {
     @Id
-    private ObjectId id;
-    @JsonProperty(value = "n")
+    private String id;
+    @JsonProperty(value = "n", required = true)
+    @NotNull
+    @NotBlank
     private String n; //simulation name
-    @JsonProperty(value = "p")
-    private int p; //population size
-    @JsonProperty(value = "i")
-    private int i; //initial infected
-    @JsonProperty(value = "r")
-    private double r; //virus reproduction rate indicator
-    @JsonProperty(value = "m")
-    private double m; //mortality rate indicator
-    @JsonProperty(value = "ti")
-    private int ti; //number of days to recovery
-    @JsonProperty(value = "tm")
-    private int tm; //number of days to death
-    @JsonProperty(value = "ts")
-    private int ts; //simulation duration in days
+    @JsonProperty(value = "p", required = true)
+    @NotNull
+    private Integer p; //population size
+    @JsonProperty(value = "i", required = true)
+    @NotNull
+    private Integer i; //initial infected
+    @JsonProperty(value = "r", required = true)
+    @NotNull
+    private Double r; //virus reproduction rate indicator
+    @JsonProperty(value = "m", required = true)
+    @NotNull
+    private Double m; //mortality rate indicator
+    @JsonProperty(value = "ti", required = true)
+    @NotNull
+    private Integer ti; //number of days to recovery
+    @JsonProperty(value = "tm", required = true)
+    @NotNull
+    private Integer tm; //number of days to death
+    @JsonProperty(value = "ts", required = true)
+    @NotNull
+    private Integer ts; //simulation duration in days
 
     public SimulationSetUp(String n, int p, int i, double r, double m, int ti, int tm, int ts)
     {
-        this.id = new ObjectId();
+        this.id = new ObjectId().toHexString();
         this.n = n;
         this.p = p;
         this.i = i;

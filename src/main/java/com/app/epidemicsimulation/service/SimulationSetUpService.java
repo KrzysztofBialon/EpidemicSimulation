@@ -3,7 +3,6 @@ package com.app.epidemicsimulation.service;
 import com.app.epidemicsimulation.model.SimulationSetUp;
 import com.app.epidemicsimulation.repository.SimulationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -35,18 +34,18 @@ public class SimulationSetUpService
     {
         return repository.findById(id);
     }
-    public Flux<SimulationSetUp> sort(String sort, double from, double to)
+    public Mono<Void> deleteById(String id)
+    {
+       return repository.deleteById(id);
+    }
+    //TODO custom criteria
+    /*public Flux<SimulationSetUp> sort(String sort, double from, double to)
     {
         return sortLogic(sort, from, to);
     }
 
     private Flux<SimulationSetUp> sortLogic(String sort, double from, double to)
     {
-        Sort sortQuery = Sort.by(
-                Sort.Order.by(sort),
-                Sort.Order.asc(String.valueOf(from)),
-                Sort.Order.desc(String.valueOf(to)));
-        Sort testSort = (Sort) Sort.by(sort).and(Sort.Order.asc(String.valueOf(from)));
-        return repository.findAll(testSort);
-    }
+
+    }*/
 }
