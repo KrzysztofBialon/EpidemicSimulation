@@ -20,7 +20,7 @@ public class SimulationSetUpService
 
     public void save(SimulationSetUp setUp)
     {
-        repository.insert(setUp).subscribe();
+        repository.save(setUp).subscribe();
     }
     public Flux<SimulationSetUp> findAll()
     {

@@ -25,7 +25,7 @@ public class SimulationRecordService
 
     public void save(SimulationRecord simulationRecord)
     {
-        recordRepository.insert(simulationRecord).subscribe();
+        recordRepository.save(simulationRecord).subscribe();
     }
     public Flux<SimulationRecord> getAllSimulation()
     {
@@ -39,6 +39,10 @@ public class SimulationRecordService
                         .map(record->
                                 record.getRecords().stream())
                         .flatMapMany((Flux::fromStream));
+    }
+    public Mono<SimulationRecord> getByOwnerId(String id)
+    {
+        return recordRepository.findByOwnerId(id);
     }
     public Mono<Void> deleteByOwnerId(String ownerId)
     {

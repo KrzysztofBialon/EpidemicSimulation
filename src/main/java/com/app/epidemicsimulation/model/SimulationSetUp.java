@@ -9,6 +9,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -27,24 +28,31 @@ public class SimulationSetUp
     private String n; //simulation name
     @JsonProperty(value = "p", required = true)
     @NotNull
+    @Min(1)
     private Integer p; //population size
     @JsonProperty(value = "i", required = true)
     @NotNull
+    @Min(1)
     private Integer i; //initial infected
     @JsonProperty(value = "r", required = true)
     @NotNull
+    @Min(0)
     private Double r; //virus reproduction rate indicator
     @JsonProperty(value = "m", required = true)
     @NotNull
+    @Min(0)
     private Double m; //mortality rate indicator
     @JsonProperty(value = "ti", required = true)
     @NotNull
+    @Min(1)
     private Integer ti; //number of days to recovery
     @JsonProperty(value = "tm", required = true)
     @NotNull
+    @Min(1)
     private Integer tm; //number of days to death
     @JsonProperty(value = "ts", required = true)
     @NotNull
+    @Min(1)
     private Integer ts; //simulation duration in days
 
     public SimulationSetUp(String n, int p, int i, double r, double m, int ti, int tm, int ts)

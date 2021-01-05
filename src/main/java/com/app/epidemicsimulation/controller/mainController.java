@@ -85,6 +85,23 @@ public class mainController
     {
         return recordService.getSimulation(id);
     }
+    @PutMapping(value = "/simulationSetUps/{id}")
+    public Mono<ResponseEntity> modifySimulation(
+            @Valid @RequestBody SimulationSetUp setUpBody, @PathVariable(value = "id") String id)
+    {
+        SimulationSetUp setUp = setUpBody;
+        setUp.setId(id);
+        Simulation simulation = new Simulation(setUp);
+        simulation.calculate();
+
+        setUpService.save(setUp);
+         recordService.getByOwnerId(id).block();
+        SimulationRecord simulationRecord = recordService.getByOwnerId(id).block();
+        simulationRecord.setRecords(simulation.getList());
+        recordService.save(simulationRecord);
+
+        return Mono.just(ResponseEntity.noContent().build());
+    }
     @DeleteMapping(value = "/simulationSetUps/{id}")
     public Mono<ResponseEntity> deleteSimulation(@PathVariable(value = "id") String id)
     {

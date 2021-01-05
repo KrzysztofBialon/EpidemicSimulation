@@ -15,6 +15,7 @@ public class SimulationDayCalc
         int vulnerable = 0;
         int dead = 0;
         int resistant = 0;
+
         int prevInfected = list.get(list.size()-1).getPi();
         int prevDead = list.get((list.size()-1)).getPm();
         int prevResistant = list.get((list.size()-1)).getPr();
