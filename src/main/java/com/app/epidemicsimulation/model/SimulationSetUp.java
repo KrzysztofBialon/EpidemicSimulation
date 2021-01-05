@@ -3,17 +3,13 @@ package com.app.epidemicsimulation.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@NoArgsConstructor
 @Getter
 @Setter
 @Document(collection = "SimulationSetUps")
@@ -55,16 +51,20 @@ public class SimulationSetUp
     @Min(1)
     private Integer ts; //simulation duration in days
 
-    public SimulationSetUp(String n, int p, int i, double r, double m, int ti, int tm, int ts)
+    @Override
+    public boolean equals(Object obj)
     {
-        this.id = new ObjectId().toHexString();
-        this.n = n;
-        this.p = p;
-        this.i = i;
-        this.r = r;
-        this.m = m;
-        this.ti = ti;
-        this.tm = tm;
-        this.ts = ts;
+        if(!(obj instanceof  SimulationSetUp))
+            return false;
+
+        SimulationSetUp setUp = (SimulationSetUp) obj;
+        //name check after this, to omit unnecessary ode and calculations if only name to change
+        return (this.p.equals(setUp.p) &&
+                this.i.equals(setUp.i) &&
+                this.r.equals(setUp.r) &&
+                this.m.equals(setUp.m) &&
+                this.ti.equals(setUp.ti) &&
+                this.tm.equals(setUp.tm) &&
+                this.ts.equals(setUp.ts));
     }
 }

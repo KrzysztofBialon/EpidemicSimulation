@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono;
 public class SimulationSetUpService
 {
     private final SimulationRepository repository;
-
     @Autowired
     public SimulationSetUpService(SimulationRepository repository)
     {
@@ -30,7 +29,7 @@ public class SimulationSetUpService
     {
         return repository.findAllByN(name);
     }
-    public Mono<SimulationSetUp> findByReferenceId(String id)
+    public Mono<SimulationSetUp> findById(String id)
     {
         return repository.findById(id);
     }
@@ -38,14 +37,4 @@ public class SimulationSetUpService
     {
        return repository.deleteById(id);
     }
-    //TODO custom criteria
-    /*public Flux<SimulationSetUp> sort(String sort, double from, double to)
-    {
-        return sortLogic(sort, from, to);
-    }
-
-    private Flux<SimulationSetUp> sortLogic(String sort, double from, double to)
-    {
-
-    }*/
 }

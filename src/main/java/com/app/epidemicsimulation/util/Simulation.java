@@ -17,7 +17,7 @@ public class Simulation
         list = new ArrayList<>();
         list.add(new SimulationDay(setUp.getI(), setUp.getP()- setUp.getI(), 0, 0));
     }
-
+    //calculate details for each day and save it into list
     public List<SimulationDay> calculate()
     {
        for(int i = 0; i< setUp.getTs(); i++)

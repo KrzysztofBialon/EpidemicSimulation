@@ -6,7 +6,6 @@ import com.app.epidemicsimulation.model.SimulationSetUp;
 import com.app.epidemicsimulation.service.SimulationRecordService;
 import com.app.epidemicsimulation.service.SimulationSetUpService;
 import com.app.epidemicsimulation.util.Simulation;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -14,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
 import javax.validation.Valid;
 
 @RestController
@@ -23,85 +21,87 @@ public class mainController
 {
     private final SimulationSetUpService setUpService;
     private final SimulationRecordService recordService;
-    private final ObjectMapper objectMapper;
 
     @Autowired
-    public mainController(SimulationSetUpService setUpService,
-                          SimulationRecordService recordService,
-                          ObjectMapper objectMapper)
+    public mainController(SimulationSetUpService setUpService, SimulationRecordService recordService)
     {
         this.setUpService = setUpService;
         this.recordService = recordService;
-        this.objectMapper = objectMapper;
     }
     //Generates simulation on given conditions from JSON object passed in body
     @PostMapping(value = "/generate", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-    public Flux<SimulationDay> createSimulation(
-            @Valid @RequestBody SimulationSetUp setUpBody)
+    public Flux<SimulationDay> createSimulation(@Valid @RequestBody SimulationSetUp setUpBody)
     {
         SimulationSetUp setUp = setUpBody;
-        setUp.setId(new ObjectId().toHexString());
+        setUp.setId(new ObjectId().toHexString()); //generate id for simulation set up
         Simulation simulation = new Simulation(setUp);
-        simulation.calculate();
-
+        simulation.calculate(); //run simulation
+        //create SimulationRecord object with reference to its owner conditions
+        //and attach all details of simulation as list. Save both to MongoDb.
         setUpService.save(setUp);
         SimulationRecord simulationRecord = new SimulationRecord(setUp.getId(), simulation.getList());
         recordService.save(simulationRecord);
-
+        //return all record days to user
         return recordService.getSimulation(simulationRecord.getOwnerId());
     }
 
     @GetMapping(value = "/search/set_ups/all", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-    public Flux<SimulationSetUp> getSimulationSetUpByName()
+    public Flux<SimulationSetUp> getAllSimulationSetUps()
     {
         return setUpService.findAll();
     }
+
     @GetMapping(value = "/search/set_ups/{name}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<SimulationSetUp> getSimulationSetUpByName(@PathVariable(value="name") String name)
     {
         return setUpService.findByName(name);
     }
+
     @GetMapping("search/set_ups/{id}")
     public Mono<SimulationSetUp> getSimulationSetUpById(@PathVariable(value="id") String id)
     {
-        return setUpService.findByReferenceId(id);
+        return setUpService.findById(id);
     }
 
-    /*@GetMapping("/search/set_ups/sort/{sort}")
-    public Flux<SimulationSetUp> getSimulationSetUpBy(@PathVariable(value = "sort") String sort,
-                                                      @RequestParam(value = "from") double from,
-                                                      @RequestParam(value = "to") double to)
-    {
-        return setUpService.sort(sort, from, to);
-    }*/
     @GetMapping(value = "/search/record/all", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-    public Flux<SimulationRecord> getAllSimulationRecord()
+    public Flux<SimulationRecord> getAllSimulationRecords()
     {
         return recordService.getAllSimulation();
     }
 
     @GetMapping(value = "/search/record/{id}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-    public Flux<SimulationDay> getSimulationRecord(@PathVariable(value="id") String id)
+    public Flux<SimulationDay> getSimulationRecordById(@PathVariable(value="id") String id)
     {
         return recordService.getSimulation(id);
     }
+    //Modifies simulation at given id. Takes full valid body, generates new records, and replaces both in db.
+    //204 NO_CONTENT on success
     @PutMapping(value = "/simulationSetUps/{id}")
     public Mono<ResponseEntity> modifySimulation(
             @Valid @RequestBody SimulationSetUp setUpBody, @PathVariable(value = "id") String id)
     {
+        SimulationSetUp oldSetUp = setUpService.findById(id).block();
         SimulationSetUp setUp = setUpBody;
         setUp.setId(id);
+        //if only name not match, update db, and return.
+        if(setUp.equals(oldSetUp) && !setUpBody.getN().equals(oldSetUp.getN()))
+        {
+            setUpService.save(setUp);
+            return Mono.just(ResponseEntity.noContent().build());
+        }
+
         Simulation simulation = new Simulation(setUp);
         simulation.calculate();
 
         setUpService.save(setUp);
-         recordService.getByOwnerId(id).block();
+        recordService.getByOwnerId(id).block();
         SimulationRecord simulationRecord = recordService.getByOwnerId(id).block();
         simulationRecord.setRecords(simulation.getList());
         recordService.save(simulationRecord);
 
         return Mono.just(ResponseEntity.noContent().build());
     }
+
     @DeleteMapping(value = "/simulationSetUps/{id}")
     public Mono<ResponseEntity> deleteSimulation(@PathVariable(value = "id") String id)
     {
