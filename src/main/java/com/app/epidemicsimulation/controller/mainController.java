@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
 import javax.validation.Valid;
 
 @RestController
@@ -36,11 +37,10 @@ public class mainController
         setUp.setId(new ObjectId().toHexString()); //generate id for simulation set up
         Simulation simulation = new Simulation(setUp);
         simulation.calculate(); //run simulation
-        //create SimulationRecord object with reference to its owner conditions
-        //and attach all details of simulation as list. Save both to MongoDb.
-        setUpService.save(setUp);
+        //create SimulationRecord object with reference to its owner conditionsand attach all details of simulation as list.
         SimulationRecord simulationRecord = new SimulationRecord(setUp.getId(), simulation.getList());
-        recordService.save(simulationRecord);
+
+        setUpService.saveBoth(setUp, simulationRecord, recordService);
         //return all record days to user
         return recordService.getSimulation(simulationRecord.getOwnerId());
     }
@@ -92,12 +92,11 @@ public class mainController
 
         Simulation simulation = new Simulation(setUp);
         simulation.calculate();
-
-        setUpService.save(setUp);
         recordService.getByOwnerId(id).block();
         SimulationRecord simulationRecord = recordService.getByOwnerId(id).block();
         simulationRecord.setRecords(simulation.getList());
-        recordService.save(simulationRecord);
+
+        setUpService.saveBoth(setUp, simulationRecord, recordService);
 
         return Mono.just(ResponseEntity.noContent().build());
     }
