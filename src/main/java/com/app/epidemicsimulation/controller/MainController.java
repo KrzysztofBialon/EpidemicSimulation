@@ -3,6 +3,7 @@ package com.app.epidemicsimulation.controller;
 import com.app.epidemicsimulation.model.SimulationDay;
 import com.app.epidemicsimulation.model.SimulationRecord;
 import com.app.epidemicsimulation.model.SimulationSetUp;
+import com.app.epidemicsimulation.service.GeneralService;
 import com.app.epidemicsimulation.service.SimulationRecordService;
 import com.app.epidemicsimulation.service.SimulationSetUpService;
 import com.app.epidemicsimulation.util.Simulation;
@@ -18,16 +19,18 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/simulation")
-public class mainController
+public class MainController
 {
     private final SimulationSetUpService setUpService;
     private final SimulationRecordService recordService;
+    private final GeneralService generalService;
 
     @Autowired
-    public mainController(SimulationSetUpService setUpService, SimulationRecordService recordService)
+    public MainController(SimulationSetUpService setUpService, SimulationRecordService recordService, GeneralService generalService)
     {
         this.setUpService = setUpService;
         this.recordService = recordService;
+        this.generalService = generalService;
     }
     //Generates simulation on given conditions from JSON object passed in body
     @PostMapping(value = "/generate", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
@@ -40,9 +43,9 @@ public class mainController
         //create SimulationRecord object with reference to its owner conditionsand attach all details of simulation as list.
         SimulationRecord simulationRecord = new SimulationRecord(setUp.getId(), simulation.getList());
 
-        setUpService.saveBoth(setUp, simulationRecord, recordService);
+        generalService.saveBoth(setUp, simulationRecord);
         //return all record days to user
-        return recordService.getSimulation(simulationRecord.getOwnerId());
+        return recordService.getSimulationByOwnerId(simulationRecord.getOwnerId());
     }
 
     @GetMapping(value = "/search/set_ups/all", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
@@ -70,9 +73,9 @@ public class mainController
     }
 
     @GetMapping(value = "/search/record/{id}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-    public Flux<SimulationDay> getSimulationRecordById(@PathVariable(value="id") String id)
+    public Flux<SimulationDay> getSimulationRecordByOwnerId(@PathVariable(value="id") String id)
     {
-        return recordService.getSimulation(id);
+        return recordService.getSimulationByOwnerId(id);
     }
     //Modifies simulation at given id. Takes full valid body, generates new records, and replaces both in db.
     //204 NO_CONTENT on success
@@ -89,14 +92,12 @@ public class mainController
             setUpService.save(setUp);
             return Mono.just(ResponseEntity.noContent().build());
         }
-
         Simulation simulation = new Simulation(setUp);
         simulation.calculate();
-        recordService.getByOwnerId(id).block();
         SimulationRecord simulationRecord = recordService.getByOwnerId(id).block();
         simulationRecord.setRecords(simulation.getList());
 
-        setUpService.saveBoth(setUp, simulationRecord, recordService);
+        generalService.saveBoth(setUp, simulationRecord);
 
         return Mono.just(ResponseEntity.noContent().build());
     }
@@ -104,9 +105,7 @@ public class mainController
     @DeleteMapping(value = "/simulationSetUps/{id}")
     public Mono<ResponseEntity> deleteSimulation(@PathVariable(value = "id") String id)
     {
-        return recordService.deleteByOwnerId(id)
-                .then(setUpService.deleteById(id))
-                .then(Mono.just(ResponseEntity.noContent().build()));
-
+        generalService.deleteBoth(id);
+        return Mono.just(ResponseEntity.noContent().build());
     }
 }

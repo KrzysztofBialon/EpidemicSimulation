@@ -51,6 +51,18 @@ public class SimulationSetUp
     @Min(1)
     private Integer ts; //simulation duration in days
 
+    public SimulationSetUp(@NotNull @NotBlank String n, @NotNull @Min(1) Integer p, @NotNull @Min(1) Integer i, @NotNull @Min(0) Double r, @NotNull @Min(0) Double m, @NotNull @Min(1) Integer ti, @NotNull @Min(1) Integer tm, @NotNull @Min(1) Integer ts)
+    {
+        this.n = n;
+        this.p = p;
+        this.i = i;
+        this.r = r;
+        this.m = m;
+        this.ti = ti;
+        this.tm = tm;
+        this.ts = ts;
+    }
+
     @Override
     public boolean equals(Object obj)
     {

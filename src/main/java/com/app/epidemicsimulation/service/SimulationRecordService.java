@@ -31,7 +31,7 @@ public class SimulationRecordService
     {
         return recordRepository.findAll();
     }
-    public Flux<SimulationDay> getSimulation(String id)
+    public Flux<SimulationDay> getSimulationByOwnerId(String id)
     {
         return
                 recordRepository.

@@ -1,14 +1,11 @@
 package com.app.epidemicsimulation.service;
 
-import com.app.epidemicsimulation.model.SimulationRecord;
 import com.app.epidemicsimulation.model.SimulationSetUp;
 import com.app.epidemicsimulation.repository.SimulationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import javax.transaction.Transactional;
 
 @Service
 public class SimulationSetUpService
@@ -39,13 +36,5 @@ public class SimulationSetUpService
     public Mono<Void> deleteById(String id)
     {
        return repository.deleteById(id);
-    }
-    //TODO move to another service
-    //saves both on on transaction
-    @Transactional
-    public void saveBoth(SimulationSetUp setUp, SimulationRecord record, SimulationRecordService service)
-    {
-        repository.save(setUp);
-        service.save(record);
     }
 }
